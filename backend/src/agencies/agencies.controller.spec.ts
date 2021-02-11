@@ -1,18 +1,32 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { AgenciesController } from './agencies.controller';
+import { AgenciesService } from './agencies.service';
 
 describe('AgenciesController', () => {
-  let controller: AgenciesController;
+  let agenciesController: AgenciesController;
+  let agenciesService: AgenciesService;
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      controllers: [AgenciesController],
-    }).compile();
-
-    controller = module.get<AgenciesController>(AgenciesController);
+  beforeEach(() => {
+    agenciesService = new AgenciesService();
+    agenciesController = new AgenciesController(agenciesService);
   });
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
+  describe('findAll', () => {
+    it('should return an array of agencies', async () => {
+      const result = [
+        {
+          name: 'Agence Paris Opera',
+          manager: 'Philipe Dayan',
+          activity: 'Electrique',
+        },
+        {
+          name: 'Agence Paris Madeleine',
+          manager: 'Adel Chibane',
+          activity: 'Electrique',
+        },
+      ];
+      jest.spyOn(agenciesService, 'findAll').mockImplementation(() => result);
+
+      expect(await agenciesController.findAll()).toBe(result);
+    });
   });
 });

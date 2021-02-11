@@ -24,7 +24,7 @@ export class AgenciesService {
       activity: 'Plomberie',
     },
     {
-      name: 'Agence Strasbourg',
+      name: 'Agence Amiens',
       manager: 'Élia Benoit',
       activity: 'Climatisation',
     },

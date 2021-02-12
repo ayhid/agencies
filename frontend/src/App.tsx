@@ -53,6 +53,7 @@ function App() {
         <Card>
           <AgenciesSelector
             limit={5}
+            
             options={agenciesList}
             handleOnChange={(selectedAgency) => {
               setSelectedAgency(selectedAgency);

@@ -1,13 +1,28 @@
 import '@testing-library/jest-dom/extend-expect';
-import { render, screen, waitFor, waitForElementToBeRemoved, wait } from '@testing-library/react';
-import selectEvent from 'react-select-event'
-
+import { fireEvent, getAllByTestId, render, screen, waitFor, waitForElementToBeRemoved } from '@testing-library/react';
 import React from 'react';
 import App from './App';
 import { findAllAgencies } from './lib/api';
+
 jest.mock('./lib/api');
 
-
+jest.mock("react-select", () => ({ options, value, onChange }) => {
+  function handleChange(event) {
+    const option = options.find(
+      (option) => option.value === event.currentTarget.value
+    );
+    onChange(option);
+  }
+  return (
+    <select data-testid="select" value={value} onChange={handleChange}>
+      {options.map(({ label, value }) => (
+        <option data-testid={`option-${value}`} key={value} value={value}>
+          {label}
+        </option>
+      ))}
+    </select>
+  );
+});
 
 
 
@@ -19,10 +34,10 @@ describe('agencies test suite', () => {
     expect(agencies.length).toBe(8);
 
   })
-  test('renders loading message', async() => {
+  test('renders loading message', async () => {
     render(<App />);
     expect(screen.getByTestId('loading-indicator')).toBeInTheDocument();
-    await waitForElementToBeRemoved(() => screen.getByText(/chargement/i))
+    await waitForElementToBeRemoved(() => screen.getByText(/chargement/i));
   });
   test('renders select agencies component', async () => {
     render(<App />);
@@ -37,15 +52,24 @@ describe('agencies test suite', () => {
   test('select agencies components loads with no selected agency first', async () => {
     const { getByTestId } = render(<App />);
     await waitFor(() => screen.getAllByTestId('agencies-selector'));
-    expect(getByTestId('agencies-selector')).toHaveFormValues({ agency: '' })
+    expect(getByTestId('agencies-selector')).toHaveFormValues({})
   })
-  /**
-   * Todo finish select component testing
-   */
-  test('select an agency triggers the display of select agency block', async () => {
-    const { getByTestId } = render(<App />);
+  test('select agencies loads 5 entries', async () => {
+    const { getAllByTestId } = render(<App />);
     await waitFor(() => screen.getAllByTestId('agencies-selector'));
-    // await waitForElementToBe(() => screen.getByText(/chargement/i))
-    // await selectEvent.select(getByTestId('agencies-selector-label'), 'Fleury GIE');
+    expect(getAllByTestId(/option-/i).length).toBe(5);
+  })
+ 
+  test('select an agency triggers the display of select agency block and local storage persist', async () => {
+    const { getByTestId } = render(<App />);
+    const valueToSelect = "Agence Strasbourg"
+    await waitFor(() => getByTestId('agencies-selector'));
+    fireEvent.change(getByTestId("select"), {
+      target: { value: valueToSelect },
+    });
+    
+    expect(getByTestId('selected-agency-container')).toBeInTheDocument();
+    expect(getByTestId('selected-agency-container')).toHaveTextContent(valueToSelect);
+    expect(localStorage.getItem('selectedAgency')).toBe(valueToSelect);
   })
 })

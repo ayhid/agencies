@@ -15,7 +15,6 @@ const AgenciesSelector: React.FC<{
         name="agency"
         placeholder="Selectionner un agence"
         inputId="agencies"
-        defaultOptions
         isClearable
         options={limitedOptions}
         onChange={(selectedAgency) => {

@@ -6,11 +6,13 @@ import Card from './components/Card';
 import Loading from './components/Loading';
 // import AgenciesSelector from './components/AgenciesSelector';
 import SelectedAgency from './components/SelectedAgency';
-import { AgencyOption } from './interfaces/agency';
 import { findAllAgencies } from './lib/api';
 
 function App() {
-  const [selectedAgency, setSelectedAgency] = useState<AgencyOption | null>(null);
+  const [selectedAgency, setSelectedAgency] = useState(()=>{
+    const persitedValue = localStorage.getItem('selectedAgency');
+    return persitedValue !== null? JSON.parse(persitedValue):null;
+  });
   const [agenciesList, setAgenciesList] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -41,11 +43,14 @@ function App() {
       cancel = true
     };
   }, []);
+
   useEffect(() => {
-    localStorage.setItem('selectedAgency', selectedAgency && selectedAgency.value ? selectedAgency.value : '');
-    return () => {
-      localStorage.removeItem('selectedAgency');
-    };
+    if (selectedAgency) {
+      localStorage.setItem('selectedAgency', selectedAgency?.value ? JSON.stringify(selectedAgency) : '');
+      return () => {
+        localStorage.removeItem('selectedAgency');
+      };
+    }
   }, [selectedAgency])
   return (
     <div className="App">
@@ -53,7 +58,7 @@ function App() {
         <Card>
           <AgenciesSelector
             limit={5}
-            
+            value={selectedAgency}
             options={agenciesList}
             handleOnChange={(selectedAgency) => {
               setSelectedAgency(selectedAgency);

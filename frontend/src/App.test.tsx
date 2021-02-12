@@ -1,12 +1,14 @@
 import '@testing-library/jest-dom/extend-expect';
-import { fireEvent, getAllByTestId, render, screen, waitFor, waitForElementToBeRemoved } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, waitForElementToBeRemoved } from '@testing-library/react';
 import React from 'react';
 import App from './App';
 import { findAllAgencies } from './lib/api';
 
+
 jest.mock('./lib/api');
 
 jest.mock("react-select", () => ({ options, value, onChange }) => {
+  
   function handleChange(event) {
     const option = options.find(
       (option) => option.value === event.currentTarget.value
@@ -14,7 +16,7 @@ jest.mock("react-select", () => ({ options, value, onChange }) => {
     onChange(option);
   }
   return (
-    <select data-testid="select" value={value} onChange={handleChange}>
+    <select data-testid="select" value={value === null ? '' : value} onChange={handleChange}>
       {options.map(({ label, value }) => (
         <option data-testid={`option-${value}`} key={value} value={value}>
           {label}
@@ -24,7 +26,7 @@ jest.mock("react-select", () => ({ options, value, onChange }) => {
   );
 });
 
-
+const persistedValue = { label: "Agence Strasbourg", value: "Agence Strasbourg", "name": "Agence Strasbourg", manager: "Bruno Brassard", activity: "Climatisation" };
 
 
 describe('agencies test suite', () => {
@@ -59,7 +61,7 @@ describe('agencies test suite', () => {
     await waitFor(() => screen.getAllByTestId('agencies-selector'));
     expect(getAllByTestId(/option-/i).length).toBe(5);
   })
- 
+
   test('select an agency triggers the display of select agency block and local storage persist', async () => {
     const { getByTestId } = render(<App />);
     const valueToSelect = "Agence Strasbourg"
@@ -67,9 +69,20 @@ describe('agencies test suite', () => {
     fireEvent.change(getByTestId("select"), {
       target: { value: valueToSelect },
     });
-    
+
     expect(getByTestId('selected-agency-container')).toBeInTheDocument();
     expect(getByTestId('selected-agency-container')).toHaveTextContent(valueToSelect);
-    expect(localStorage.getItem('selectedAgency')).toBe(valueToSelect);
+    expect(localStorage.getItem('selectedAgency')).toBe(JSON.stringify(persistedValue));
+  })
+  test('select list should load with persisted value', async () => {
+    localStorage.setItem('selectedAgency', JSON.stringify(persistedValue));
+    const { getByTestId } = render(<App />);
+    const expectedValue = "Agence Strasbourg"
+    await waitFor(() => getByTestId('agencies-selector'));
+
+
+    expect(getByTestId('selected-agency-container')).toBeInTheDocument();
+    expect(getByTestId('selected-agency-container')).toHaveTextContent(expectedValue);
+    expect(localStorage.getItem('selectedAgency')).toBe(JSON.stringify(persistedValue));
   })
 })

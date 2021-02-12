@@ -20,6 +20,15 @@ div.App {
     box-shadow: 0 6px 10px -5px rgba(0, 0, 0, 0.2);
     padding   : 50px;
 
+    form.agencies-selector {
+      label {
+        font-weight  : 700;
+        display      : block;
+        margin-bottom: 10px;
+
+      }
+    }
+
     div.selected-agency {
       margin-top: 20px;
 

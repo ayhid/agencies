@@ -3,7 +3,7 @@ import { AgencyOption } from '../interfaces/agency';
 
 const SelectedAgency: React.FC<{ agency: AgencyOption | null }> = ({ agency }) => {
   return (
-    <div data-testid="selected-agency">
+    <div >
       {agency ? <div className="selected-agency">
         Votre agence: <strong>{`${agency.name}`}</strong>
         <ul>

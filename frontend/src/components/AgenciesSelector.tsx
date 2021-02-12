@@ -2,25 +2,27 @@ import React from 'react';
 import Select from 'react-select'
 import { AgencyOption } from '../interfaces/agency';
 
-;
-
-
-
 const AgenciesSelector: React.FC<{
   options: AgencyOption[],
   handleOnChange: (selectedAgency: AgencyOption | null) => void;
-}> = ({ handleOnChange, options }) => {
+  limit: number
+}> = ({ handleOnChange, options, limit=0 }) => {
+  const limitedOptions = limit? options.slice(0,limit):options;
   return (
-    <Select
-      placeholder="Selectionner un agence"
-      data-testid="agencies-selector"
-      defaultOptions
-      isClearable
-      options={options}
-      onChange={(selectedAgency) => {
-        handleOnChange(selectedAgency);
-      }}
-    />
+    <form className="agencies-selector" data-testid="agencies-selector">
+      <label htmlFor="agencies" data-testid="agencies-selector-label">Agences</label>
+      <Select
+        name="agency"
+        placeholder="Selectionner un agence"
+        inputId="agencies"
+        defaultOptions
+        isClearable
+        options={limitedOptions}
+        onChange={(selectedAgency) => {
+          handleOnChange(selectedAgency);
+        }}
+      />
+    </form>
 
   );
 };
